@@ -4,7 +4,7 @@
 You should install psyco and gmpy if you want maximal speed.
 
 Filename: pyecm
-Authors: Eric Larson <elarson3@uoregon.edu>, Martin Kelly <martin@martingkelly.com>,
+Authors: Eric Larson <elarson3@uoregon.edu>, Martin Kelly <martin@martingkelly.com>, Matt Ford <zeotherm@gmail.com>
 License: GNU GPL (see <http://www.gnu.org/licenses/gpl.html> for more information.
 Description: Factors a number using the Elliptic Curve Method, a fast algorithm for numbers < 50 digits.
 
@@ -45,7 +45,8 @@ if not GMPY_EXISTS:
    def gcd(a, b):
       '''Computes the Greatest Common Divisor of a and b using the standard quadratic time improvement to the Euclidean Algorithm.
 
-   Returns the GCD of a and b.'''
+Returns the GCD of a and b.'''
+
       if b == 0:
          return a
       elif a == 0:
@@ -177,7 +178,7 @@ Returns the next prime after n.'''
             continue
 
          p = 1
-         for i in xrange(int(math.log(n) / LOG_2), 0, -1):
+         for i in range(int(math.log(n) / LOG_2), 0, -1):
             p <<= (n >> i) & 1
             p = (p * p) % n
 
@@ -234,9 +235,9 @@ MULT = math.log(3) / LOG_2
 ONE = mpz(1)
 SMALL = 2.0**(-30)
 SMALLEST_COUNTEREXAMPLE_FASTPRIME = 2047
-T = (type(mpz(1)), type(1), type(1L))
+T = (type(mpz(1)), type(1), type(1))
 DUMMY = 'dummy' # Dummy value throughout the program
-VERSION = '2.0.2'
+VERSION = '2.0.2 (Python 3)'
 _12_LOG_2_OVER_49 = 12 * math.log(2) / 49
 RECORD = 1162795072109807846655696105569042240239
 
@@ -261,7 +262,7 @@ a = ts(7, 23, [1<<23, 2<<23, 3<<23]) -- now, a represents 1 + 2x + 3x^2. Here, c
       while len(b_) < len(a_):
          b_.append(0)
 
-      for i in xrange(len(a_)):
+      for i in range(len(a_)):
          self.coefficients.append(a_[i] + b_[i])
 
       self.acc = a.acc
@@ -269,7 +270,7 @@ a = ts(7, 23, [1<<23, 2<<23, 3<<23]) -- now, a represents 1 + 2x + 3x^2. Here, c
    def ev(self, x):
       '''Returns a(x)'''
       answer = 0
-      for i in xrange(len(self.coefficients) - 1, -1, -1):
+      for i in range(len(self.coefficients) - 1, -1, -1):
          answer *= x
          answer += self.coefficients[i]
       return answer
@@ -277,7 +278,7 @@ a = ts(7, 23, [1<<23, 2<<23, 3<<23]) -- now, a represents 1 + 2x + 3x^2. Here, c
    def evh(self):
       '''Returns a(1/2)'''
       answer = 0
-      for i in xrange(len(self.coefficients) - 1, -1, -1):
+      for i in range(len(self.coefficients) - 1, -1, -1):
          answer >>= 1
          answer += self.coefficients[i]
       return answer
@@ -285,7 +286,7 @@ a = ts(7, 23, [1<<23, 2<<23, 3<<23]) -- now, a represents 1 + 2x + 3x^2. Here, c
    def evmh(self):
       '''Returns a(-1/2)'''
       answer = 0
-      for i in xrange(len(self.coefficients) - 1, -1, -1):
+      for i in range(len(self.coefficients) - 1, -1, -1):
          answer = - answer >> 1
          answer += self.coefficients[i]
       return answer
@@ -293,21 +294,21 @@ a = ts(7, 23, [1<<23, 2<<23, 3<<23]) -- now, a represents 1 + 2x + 3x^2. Here, c
    def int(self):
       '''Replaces a by an integral of a'''
       self.coefficients = [0] + self.coefficients
-      for i in xrange(1, len(self.coefficients)):
-         self.coefficients[i] /= i
+      for i in range(1, len(self.coefficients)):
+         self.coefficients[i] = self.coefficients[i] // i
 
    def lindiv(self, a):
       '''a.lindiv(k) -- sets a/(x-k/2) for integer k'''
-      for i in xrange(len(self.coefficients) - 1):
+      for i in range(len(self.coefficients) - 1):
          self.coefficients[i] <<= 1
-         self.coefficients[i] /= a
+         self.coefficients[i] = self.coefficients[i] // a
          self.coefficients[i + 1] -= self.coefficients[i]
       self.coefficients[-1] <<= 1
-      self.coefficients[-1] /= a
+      self.coefficients[-1] = self.coefficients[-1] // a
 
    def neg(self):
       '''Sets a to -a'''
-      for i in xrange(len(self.coefficients)):
+      for i in range(len(self.coefficients)):
          self.coefficients[i] = - self.coefficients[i]
 
    def set(self, a):
@@ -317,14 +318,14 @@ a = ts(7, 23, [1<<23, 2<<23, 3<<23]) -- now, a represents 1 + 2x + 3x^2. Here, c
 
    def simp(self):
       '''Turns a into a type of Taylor series that can be fed into ev, but cannot be computed with further.'''
-      for i in xrange(len(self.coefficients)):
+      for i in range(len(self.coefficients)):
          shift = max(0, int(math.log(abs(self.coefficients[i]) + 1) / LOG_2) - 1000)
          self.coefficients[i] = float(self.coefficients[i] >> shift)
          shift = self.acc - shift
-         for _ in xrange(shift >> 9):
+         for _ in range(shift >> 9):
             self.coefficients[i] /= BIG
          self.coefficients[i] /= 2.0**(shift & 511)
-         if abs(self.coefficients[i] / self.coefficients[0]) <= SMALL:
+         if (abs(self.coefficients[i] / self.coefficients[0]) <= SMALL):
             self.coefficients = self.coefficients[:i]
             break
 
@@ -334,9 +335,9 @@ def add(p1, p2,  n):
    '''Adds first argument to second (second argument is not preserved). The arguments are points on an elliptic curve. The first argument may be a tuple instead of a list. The addition is thus done pointwise. This function has bizzare input/output because there are fast algorithms for inverting a bunch of numbers at once.
 
 Returns a list of the addition results.'''
-   inv = range(len(p1))
+   inv = list(range(len(p1)))
 
-   for i in xrange(len(p1)):
+   for i in range(len(p1)):
       inv[i] = p1[i][0] - p2[i][0]
 
    inv = parallel_invert(inv, n)
@@ -344,7 +345,7 @@ Returns a list of the addition results.'''
    if not isinstance(inv, list):
       return inv
 
-   for i in xrange(len(p1)):
+   for i in range(len(p1)):
       m = ((p1[i][1] - p2[i][1]) * inv[i]) % n
       p2[i][0] = (m * m - p1[i][0] - p2[i][0]) % n
       p2[i][1] = (m * (p1[i][0] - p2[i][0]) - p1[i][1]) % n
@@ -356,10 +357,10 @@ def add_sub_x_only(p1, p2,  n):
 p1[i] + p2[i] and p1[i] - p2[i] for each i.
 
 Returns two lists, the first being the sums and the second the differences.'''
-   sums = range(len(p1))
-   difs = range(len(p1))
+   sums = list(range(len(p1)))
+   difs = list(range(len(p1)))
 
-   for i in xrange(len(p1)):
+   for i in range(len(p1)):
       sums[i] = p2[i][0] - p1[i][0]
 
    sums = parallel_invert(sums, n)
@@ -367,7 +368,7 @@ Returns two lists, the first being the sums and the second the differences.'''
    if not isinstance(sums, list):
       return (sums, None)
 
-   for i in xrange(len(p1)):
+   for i in range(len(p1)):
       ms = ((p2[i][1] - p1[i][1]) * sums[i]) % n
       md = ((p2[i][1] + p1[i][1]) * sums[i]) % n
       sums[i] = (ms * ms - p1[i][0] - p2[i][0]) % n
@@ -412,7 +413,7 @@ Returns whether it is possible for n to be prime (True or False).
       return False
    if n == 2:
       return True
-   if not n & 1:
+   if not int(n) & 1:
       return False
 
    product = ONE
@@ -424,7 +425,7 @@ Returns whether it is possible for n to be prime (True or False).
    prime_bound = 0
    prime = 3
 
-   for _ in xrange(bound):
+   for _ in range(bound):
       p = []
       prime_bound += log_n
       while prime <= prime_bound:
@@ -440,9 +441,8 @@ def double(p, n):
    '''Doubles each point in the input list. Much like the add function, we take advantage of fast inversion.
 
 Returns the doubled list.'''
-   inv = range(len(p))
-
-   for i in xrange(len(p)):
+   inv = list(range(len(p)))
+   for i in range(len(p)):
       inv[i] = p[i][1] << 1
 
    inv = parallel_invert(inv, n)
@@ -450,13 +450,12 @@ Returns the doubled list.'''
    if not isinstance(inv, list):
       return inv
 
-   for i in xrange(len(p)):
+   for i in range(len(p)):
       x = p[i][0]
       m = (x * x) % n
       m = ((m + m + m + p[i][2]) * inv[i]) % n
       p[i][0] = (m * m - x - x) % n
       p[i][1] = (m * (x - p[i][0]) - p[i][1]) % n
-
    return p
 
 def fastprime(n):
@@ -486,7 +485,7 @@ Returns the primality of n (True or False).'''
    if p in (n - 1, n + 1):
       return True
 
-   for _ in xrange(j):
+   for _ in range(j):
       p = (p * p) % n
 
       if p == 1:
@@ -508,18 +507,17 @@ Returns the greatest n such that phi(n) < phi_max.'''
       phi_product *= prime - 1
       product *= prime
 
-   n_max = (phi_max * product) / phi_product
-
-   phi_values = range(n_max)
+   n_max = (phi_max * product) // phi_product
+   phi_values = list(range(n_max))
 
    prime = 2
    while prime <= n_max:
-      for i in xrange(0, n_max, prime):
-         phi_values[i] -= phi_values[i] / prime
+      for i in range(0, n_max, prime):
+         phi_values[i] -= phi_values[i] // prime
 
       prime = next_prime(prime)
 
-   for i in xrange(n_max - 1, 0, -1):
+   for i in range(n_max - 1, 0, -1):
       if phi_values[i] <= phi_max:
          return i
 
@@ -534,7 +532,7 @@ def naf(d):
 -1's with 3's, and interprets the result base 4.
 
 Returns the result interpreted as if in base 4.'''
-   g = 0L
+   g = 0
    while d:
       g <<= 2
       g ^= ((d & 2) & (d << 1)) ^ (d & 1)
@@ -547,7 +545,7 @@ def parallel_invert(l, n):
 
 Returns the list with all elements inverted modulo 3(n-1).'''
    l_ = l[:]
-   for i in xrange(len(l)-1):
+   for i in range(len(l)-1):
       l[i+1] = (l[i] * l[i+1]) % n
 
    try:
@@ -557,7 +555,7 @@ Returns the list with all elements inverted modulo 3(n-1).'''
    if inv == 0:
       return gcd(l[-1], n)
 
-   for i in xrange(len(l)-1, 0, -1):
+   for i in range(len(l)-1, 0, -1):
       l[i] = (inv * l[i-1]) % n
       inv = (inv * l_[i]) % n
    l[0] = inv
@@ -573,7 +571,7 @@ Returns the product of everything in p.'''
    jump = 1
 
    while jump < len(p):
-      for i in xrange(0, len(p) - jump, jump << 1):
+      for i in range(0, len(p) - jump, jump << 1):
          p[i] *= p[i + jump]
          p[i + jump] = None
 
@@ -593,18 +591,18 @@ def rho_ts(n):
 Returns a list of Taylor series.'''
    f = ts(10, 10, [])
    answer = [ts(10, 10, [1])]
-   for _ in xrange(n):
+   for _ in range(n):
       answer.append(ts(10, 10, [1]))
    deg = 5
    acc = 50 + n * int(1 + math.log(1 + n) + math.log(math.log(3 + n)))
    r = 1
    rho_series = ts(1, 10, [0])
    while r != rho_series.coefficients[0]:
-      deg = (deg + (deg << 2)) / 3
+      deg = (deg + (deg << 2)) // 3
       r = rho_series.coefficients[0]
-      rho_series = ts(deg, acc, [(1L) << acc])
+      rho_series = ts(deg, acc, [(1) << acc])
       center = 0.5
-      for i in xrange(1, n+1):
+      for i in range(1, n+1):
          f.set(rho_series)
          center += 1
          f.lindiv(int(2*center))
@@ -629,7 +627,7 @@ Yields factors.'''
 
    while not (f % 3):
       yield 3
-      f /= 3
+      f = f // 3
 
    if isprime(f):
       yield f
@@ -645,7 +643,7 @@ Yields factors.'''
    if g not in (1, f):
       for factor in sub_sub_sure_factors(g, u, curve_parameter):
          yield factor
-      for factor in sub_sub_sure_factors(f/g, u, curve_parameter):
+      for factor in sub_sub_sure_factors(f//g, u, curve_parameter):
          yield factor
       return
 
@@ -653,7 +651,7 @@ Yields factors.'''
    if g2 not in (1, f):
       for factor in sub_sub_sure_factors(g2, u, curve_parameter):
          yield factor
-      for factor in sub_sub_sure_factors(f / g2, u, curve_parameter):
+      for factor in sub_sub_sure_factors(f // g2, u, curve_parameter):
          yield factor
       return
 
@@ -668,7 +666,7 @@ Yields factors.'''
             if p1 != f:
                for factor in sub_sub_sure_factors(p1, u, curve_parameter):
                   yield factor
-               for factor in sub_sub_sure_factors(f/p1, u, curve_parameter):
+               for factor in sub_sub_sure_factors(f//p1, u, curve_parameter):
                   yield factor
                return
             else:
@@ -683,13 +681,13 @@ Yields factors.'''
       while prime < u2:
          prime = next_prime(prime)
          should_break = False
-         for _ in xrange(int(log_mo / math.log(prime))):
+         for _ in range(int(log_mo / math.log(prime))):
             p1 = multiply(p1, prime, f)
             if not isinstance(p1, list):
                if p1 != f:
                   for factor in sub_sub_sure_factors(p1, u, curve_parameter):
                      yield factor
-                  for factor in sub_sub_sure_factors(f/p1, u, curve_parameter):
+                  for factor in sub_sub_sure_factors(f//p1, u, curve_parameter):
                      yield factor
                   return
 
@@ -701,11 +699,11 @@ Yields factors.'''
          if should_break:
             break
 
-   for i in xrange(2, int(math.log(f) / LOG_2) + 2):
+   for i in range(2, int(math.log(f) / LOG_2) + 2):
       r = root(f, i)
       if r[1]:
          for factor in sub_sub_sure_factors(r[0], u, curve_parameter):
-            for _ in xrange(i):
+            for _ in range(i):
                yield factor
          return
 
@@ -764,9 +762,9 @@ def subtract(p1, p2,  n):
    '''Given two points on an elliptic curve, subtract them pointwise.
 
 Returns the resulting point.'''
-   inv = range(len(p1))
+   inv = list(range(len(p1)))
 
-   for i in xrange(len(p1)):
+   for i in range(len(p1)):
       inv[i] = p2[i][0] - p1[i][0]
 
    inv = parallel_invert(inv, n)
@@ -774,7 +772,7 @@ Returns the resulting point.'''
    if not isinstance(inv, list):
       return inv
 
-   for i in xrange(len(p1)):
+   for i in range(len(p1)):
       m = ((p1[i][1] + p2[i][1]) * inv[i]) % n
       p2[i][0] = (m * m - p1[i][0] - p2[i][0]) % n
       p2[i][1] = (m * (p1[i][0] - p2[i][0]) + p1[i][1]) % n
@@ -787,8 +785,8 @@ def congrats(f, veb):
 Returns nothing.'''
 
    if veb and f > RECORD:
-      print 'Congratulations! You may have found a record factor via pyecm!'
-      print 'Please email the Mainloop call to Eric Larson <elarson3@uoregon.edu>'
+      print('Congratulations! You may have found a record factor via pyecm!')
+      print('Please email the Mainloop call to Eric Larson <elarson3@uoregon.edu>')
 
    return
 
@@ -802,35 +800,34 @@ Yields factors of n.'''
       return
 
    if veb:
-      print 'Found factor:', f
-      print 'Mainloop call was:', n, u, curve_params
+      print('Found factor:', f)
+      print('Mainloop call was:', n, u, curve_params)
 
    if isprime(f):
       congrats(f, veb)
       yield f
-      n /= f
+      n = n//f
       if isprime(n):
          yield n
       if veb:
-         print '(factor processed)'
+         print('(factor processed)')
       return
-
    for factor in sub_sure_factors(f, u, curve_params):
       if isprime(factor):
          congrats(f, veb)
          yield factor
       else:
          if veb:
-            print 'entering new ecm loop to deal with stubborn factor:', factor
+            print('entering new ecm loop to deal with stubborn factor:', factor)
          for factor_of_factor in ecm(factor, True, ov, veb, tdb, pr):
             yield factor_of_factor
-      n /= factor
+      n = n//factor
 
    if isprime(n):
       yield n
 
    if veb:
-      print '(factor processed)'
+      print('(factor processed)')
    return
 
 def to_tuple(p):
@@ -844,17 +841,17 @@ Returns a list.'''
    return tuple(answer)
 
 def mainloop(n, u, p1):
-   ''' Input:   n  -- an integer to (try) to factor.
-         u  -- the phase 1 smoothness bound
-         p1 -- a list of sigma parameters to try
+   ''' Input:     n  -- an integer to (try) to factor.
+               u  -- the phase 1 smoothness bound
+               p1 -- a list of sigma parameters to try
 
-   Output:   A factor of n. (1 is returned on faliure).
+   Output: A factor of n. (1 is returned on faliure).
 
    Notes:
-      1. Other parameters, such as the phase 2 smoothness bound are selected by the mainloop function.
-      2. This function uses batch algorithms, so if p1 is not long enough, there will be a loss in efficiency.
-      3. Of course, if p1 is too long, then the mainloop will have to use more memory.
-           [The memory is polynomial in the length of p1, log u, and log n].'''
+         1. Other parameters, such as the phase 2 smoothness bound are selected by the mainloop function.
+         2. This function uses batch algorithms, so if p1 is not long enough, there will be a loss in efficiency.
+         3. Of course, if p1 is too long, then the mainloop will have to use more memory.
+              [The memory is polynomial in the length of p1, log u, and log n].'''
    k = inv_const(n)
    log_u = math.log(u)
    log_log_u = math.log(log_u)
@@ -869,30 +866,29 @@ def mainloop(n, u, p1):
    w = min(w, int((m - 2 * math.log(m) + LOG_3_MINUS_LOG_LOG_2) / LOG_2))
    w = max(w, 1)
    max_order = n + sqrt(n << 2) + 1 # By Hasse's theorem.
-   det_bound = ((1 << w) - 1 + ((w & 1) << 1)) / 3
+   det_bound = ((1 << w) - 1 + ((w & 1) << 1)) // 3
    log_mo = math.log(max_order)
-   p = range(number_of_primes)
+   p = list(range(number_of_primes))
    prime = mpz(2)
-
    p1 = get_points(p1, n)
    if not isinstance(p1, list):
       return p1
 
-   for _ in xrange(int(log_mo / LOG_2)):
+   for _ in range(int(log_mo / LOG_2)):
       p1 = double(p1, n)
       if not isinstance(p1, list):
          return p1
 
-   for i in xrange(1, det_bound):
+   for i in range(1, det_bound):
       prime  = (i << 1) + 1
       if isprime(prime):
-         for _ in xrange(int(log_mo / math.log(prime))):
+         for _ in range(int(log_mo / math.log(prime))):
             p1 = multiply(p1, prime, n)
             if not isinstance(p1, list):
                return p1
 
    while prime < sqrt(u) and isinstance(p1, list):
-      for i in xrange(number_of_primes):
+      for i in range(number_of_primes):
          prime = next_prime(prime)
          p[i] = prime ** max(1, int(log_u / math.log(prime)))
       p1 = fast_multiply(p1, prod(p),  n, w)
@@ -901,7 +897,7 @@ def mainloop(n, u, p1):
       return p1
 
    while prime < u and isinstance(p1, list):
-      for i in xrange(number_of_primes):
+      for i in range(number_of_primes):
          prime = next_prime(prime)
          p[i] = prime
       p1 = fast_multiply(p1, prod(p),  n, w)
@@ -911,9 +907,9 @@ def mainloop(n, u, p1):
 
    del p
 
-   small_jump = int(greatest_n((1 << (w + 2)) / 3))
+   small_jump = int(greatest_n((1 << (w + 2)) // 3))
    small_jump = max(120, small_jump)
-   big_jump = 1 + (int(sqrt((5 << w) / 21)) << 1)
+   big_jump = 1 + (int(sqrt((5 << w) // 21)) << 1)
    total_jump = small_jump * big_jump
    big_multiple = max(total_jump << 1, ((int(next_prime(prime)) - (total_jump >> 1)) / total_jump) * total_jump)
    big_jump_2 = big_jump >> 1
@@ -933,12 +929,12 @@ def mainloop(n, u, p1):
       return pgiant_step
 
    small_multiples = [None]
-   for i in xrange(1, small_jump >> 1):
+   for i in range(1, small_jump >> 1):
       if gcd(i, small_jump) == 1:
          tmp = multiply(p1, i, n)
          if not isinstance(tmp, list):
             return tmp
-         for i in xrange(len(tmp)):
+         for i in range(len(tmp)):
             tmp[i] = tmp[i][0]
          small_multiples.append(tuple(tmp))
       else:
@@ -946,7 +942,7 @@ def mainloop(n, u, p1):
    small_multiples = tuple(small_multiples)
 
    big_multiples = [None]
-   for i in xrange(1, (big_jump + 1) >> 1):
+   for i in range(1, (big_jump + 1) >> 1):
       tmp = multiply(psmall_jump, i, n)
       if not isinstance(tmp, list):
          return tmp
@@ -967,12 +963,12 @@ def mainloop(n, u, p1):
       prime_up = next_prime(big_multiple - small_jump_2)
       while prime_up < big_multiple + small_jump_2:
          s = small_multiples[abs(int(prime_up) - big_multiple)]
-         for j in xrange(ncurves):
+         for j in range(ncurves):
             product *= pgiant_step[j][0] - s[j]
             product %= n
          prime_up = next_prime(prime_up)
 
-      for i in xrange(1, big_jump_2 + 1):
+      for i in range(1, big_jump_2 + 1):
          center_up += small_jump
          center_down -= small_jump
 
@@ -982,7 +978,7 @@ def mainloop(n, u, p1):
 
          while prime_up < center_up + small_jump_2:
             s = small_multiples[abs(int(prime_up) - center_up)]
-            for j in xrange(ncurves):
+            for j in range(ncurves):
                product *= pmed_step_up[j] - s[j]
                product %= n
             prime_up = next_prime(prime_up)
@@ -990,7 +986,7 @@ def mainloop(n, u, p1):
          prime_down = next_prime(center_down - small_jump_2)
          while prime_down < center_down + small_jump_2:
             s = small_multiples[abs(int(prime_down) - center_down)]
-            for j in xrange(ncurves):
+            for j in range(ncurves):
                product *= pmed_step_down[j] - s[j]
                product %= n
             prime_down = next_prime(prime_down)
@@ -1007,13 +1003,13 @@ an elliptic curve. Both d and <p> must be odd. Also, <p> may not be divisible by
 Returns the list p multiplied by d.'''
 
    mask = (1 << (w << 1)) - 1
-   flop = mask / 3
+   flop = mask // 3
    g = naf(d) >> 4
    precomp = {}
    m = copy(p)
    p = double(p, n)
 
-   for i in xrange((flop >> w) + (w & 1)):
+   for i in range((flop >> w) + (w & 1)):
       key = naf((i << 1) + 1)
       precomp[key] = to_tuple(m)
       precomp[((key & flop) << 1) ^ key] = precomp[key]
@@ -1023,7 +1019,7 @@ Returns the list p multiplied by d.'''
       if g & 1:
          t = g & mask
          sh = 1 + int(math.log(t) / LOG_4)
-         for _ in xrange(sh):
+         for _ in range(sh):
             p = double(p, n)
 
          if g & 2:
@@ -1049,7 +1045,7 @@ Returns the points.'''
    invs = p1[:]
    ncurves = len(p1)
 
-   for j in xrange(ncurves):
+   for j in range(ncurves):
       sigma = mpz(p1[j])
       u = (sigma**2 - 5) % n
       v = sigma << 2
@@ -1061,7 +1057,7 @@ Returns the points.'''
    if not isinstance(invs, list):
       return invs
 
-   for j in xrange(ncurves):
+   for j in range(ncurves):
       u, v, i = p1[j]
       inv = invs[j]
 
@@ -1074,8 +1070,8 @@ Returns the points.'''
       while a % 3:
          a += n
 
-      x_0 = (x_0 + a * b / 3) % n
-      c = (y_0 * ((1 - a**2 / 3) % n)) % n
+      x_0 = (x_0 + a * b // 3) % n
+      c = (y_0 * ((1 - a**2 // 3) % n)) % n
 
       p1[j] = [x_0, y_0, c]
 
@@ -1107,7 +1103,7 @@ Returns the primality of n (True or False).'''
       if p == 1 or p == n - 1:
          continue
 
-      for _ in xrange(j):
+      for _ in range(j):
          p = (p * p) % n
 
          if p == 1:
@@ -1166,9 +1162,9 @@ Notes:
    else:
       sigma = 6
 
-   for factor in sure_factors(n, k, range(sigma, sigma + k), veb, ra, ov, tdb, pr):
+   for factor in sure_factors(n, k, list(range(sigma, sigma + k)), veb, ra, ov, tdb, pr):
       yield factor
-      n /= factor
+      n = n//factor
 
    if n == 1:
       return
@@ -1184,13 +1180,13 @@ Notes:
    nc = 1 + int(_12_LOG_2_OVER_49 * ov * ov * k)
    eff_nc = nc / pr
 
-   for i in xrange(1 + (int(math.log(n)) >> 1)):
+   for i in range(1 + (int(math.log(n)) >> 1)):
       if i < math.log(tdb):
          prime_probs.append(0)
       else:
          prime_probs.append(1.0/i)
 
-   for i in xrange(len(prime_probs)):
+   for i in range(len(prime_probs)):
       p_success = rho_ev((i - 2.65) / math.log(k), t)
       p_fail = max(0, (1 - p_success * math.log(math.log(k)))) ** (k / pr)
       prime_probs[i] = p_fail * prime_probs[i] / (p_fail * prime_probs[i] + 1 - prime_probs[i])
@@ -1202,7 +1198,7 @@ Notes:
          u = (high + low) >> 1
          sum = 0
          log_u = math.log(u)
-         for i in xrange(len(prime_probs)):
+         for i in range(len(prime_probs)):
             log_p = i - 2.65
             log_u = math.log(u)
             quot = log_p / log_u
@@ -1217,11 +1213,11 @@ Notes:
       else:
          sigma += nc
 
-      for factor in sure_factors(n, u, range(sigma, sigma + nc), veb, ra, ov, tdb, pr):
+      for factor in sure_factors(n, u, list(range(sigma, sigma + nc)), veb, ra, ov, tdb, pr):
          yield factor
-         n /= factor
+         n = n // factor
 
-      for i in xrange(len(prime_probs)):
+      for i in range(len(prime_probs)):
          p_success = rho_ev((i - 2.65) / math.log(u), t)
          p_fail = max(0, (1 - p_success * math.log(math.log(u)))) ** eff_nc
          prime_probs[i] = p_fail * prime_probs[i] / (p_fail * prime_probs[i] + 1 - prime_probs[i])
@@ -1229,7 +1225,7 @@ Notes:
 
       if veb and n != 1:
          m = max(prime_probs)
-         for i in xrange(len(prime_probs)):
+         for i in range(len(prime_probs)):
             if prime_probs[i] == m:
                break
 
@@ -1237,7 +1233,7 @@ Notes:
          new_looking_for += new_looking_for << 2
          if new_looking_for != looking_for:
             looking_for = new_looking_for
-            print 'Searching for primes around', looking_for, 'digits'
+            print('Searching for primes around', looking_for, 'digits')
 
    return
 
@@ -1260,7 +1256,7 @@ Notes:
 
 
    if type(n) not in T:
-      raise ValueError, 'Number given must be integer or long.'
+      raise ValueError('Number given must be integer or long.')
 
    if not 0 < pr <= 1:
       yield 'Error: pr must be between 0 and 1'
@@ -1278,7 +1274,7 @@ Notes:
    while prime < trial_division_bound:
       prime = next_prime(prime)
       while not n % prime:
-         n /= prime
+         n = n//prime
          yield prime
 
    if isprime(n):
@@ -1298,7 +1294,7 @@ def is_switch(s):
 
 Returns True or False.'''
 
-   for i in xrange(len(s)):
+   for i in range(len(s)):
       if s[i] != '-':
          break
 
@@ -1335,43 +1331,43 @@ Returns True or False.'''
    return True
 
 def help():
-   print   '''\
+   print( '''\
 Usage: pyecm [OPTION] [expression to factor]
 Factor numbers using the Elliptic Curve Method.
 
-   --portion=num    Does only part of the work for factoring, corresponding to
+--portion=num    Does only part of the work for factoring, corresponding to
 what fraction of the total work the machine is doing. Useful for working in
 parallel. For example, if there are three machines: 1GHz, 1GHz, and 2GHz, print
 should be set to 0.25 for the 1GHz machines and 0.5 for the 2GHz machine.
 Implies -r and -v. -r is needed to avoid duplicating work and -v is needed to
 report results.
-   --ov=num        Sets the value of the internal parameter ov, which
+--ov=num        Sets the value of the internal parameter ov, which
 determines the trade-off between memory and time usage. Do not touch if you do
 not know what you are doing. Please read all the documentation and understand
 the full implications of the parameter before using this switch.
-   -n, --noverbose   Terse. On by default. Needed to cancel the -v from the
+-n, --noverbose   Terse. On by default. Needed to cancel the -v from the
 --portion or --random switches. If both -n and -v are specified, the one
 specified last takes precedence.
-   -r, --random     Chooses random values for sigma, an internal parameter in
+-r, --random     Chooses random values for sigma, an internal parameter in
 the calculation. Implies -v; if you're doing something random, you want to know
 what's happening.
-   -v, --verbose    Explains what is being done with intermediate calculations
+-v, --verbose    Explains what is being done with intermediate calculations
 and results.
 
 With no integers to factor given via command-line, read standard input.
 
-Please report bugs to Eric Larson <elarson3@uoregon.edu>.'''
+Please report bugs to Eric Larson <elarson3@uoregon.edu>.''')
    sys.exit()
 
 def command_line(veb, ra, ov, pr):
    l = len(sys.argv)
-   for i in xrange(1, l):
+   for i in range(1, l):
       if not is_switch(sys.argv[i]):
          break
 
-   for j in xrange(i, l): # Start with the first non-switch
+   for j in range(i, l): # Start with the first non-switch
       if j != i: # Pretty printing
-         print
+         print( '')
       response = sys.argv[j]
       if valid_input(response):
          response = response.replace('^', '**')
@@ -1383,60 +1379,60 @@ def command_line(veb, ra, ov, pr):
       else:
          help()
 
-      print   'Factoring %d:' % n
+      print('Factoring {0}:'.format(n))
       if n < 0:
-         print   -1
+         print(-1)
          n = -n
       if n == 0:
-         print   '0 does not have a well-defined factorization.'
+         print( '0 does not have a well-defined factorization.')
          continue
       elif n == 1:
-         print   1
+         print( 1)
          continue
 
       if ov == DUMMY:
          ov = 2*math.log(math.log(n))
       for factor in factors(n, veb, ra, ov, pr):
-         print factor
+         print(factor)
 
 def interactive(veb, ra, ov, pr):
-   print   'pyecm v. %s (interactive mode):' % VERSION
-   print   'Type "exit" at any time to quit.'
-   print
+   print('pyecm v. {0} (interactive mode):'.format(VERSION))
+   print('Type "exit" at any time to quit.')
+   print()
 
-   response = raw_input()
-   while response != 'exit' and response != 'quit':
-      if valid_input(response):
-         response = response.replace('^', '**')
+   user_input = input()
+   while user_input != 'exit' and user_input != 'quit':
+      if valid_input(user_input):
+         user_input = user_input.replace('^', '**')
          try:
-            n = eval(response)
+            n = eval(user_input)
             int(n)
          except (SyntaxError, TypeError, ValueError):
             help()
       else:
          help()
 
-      print   'Factoring number %d:' % n
+      print('Factoring number %d:' % n)
       if n < 0:
-         print   -1
+         print( -1)
          n = -n
       if n == 0:
-         print   '0 does not have a well-defined factorization.'
-         print
-         response = raw_input()
+         print('0 does not have a well-defined factorization.')
+         print()
+         user_input = input()
          continue
       elif n == 1:
-         print   1
-         print
-         response = raw_input()
+         print(1)
+         print()
+         user_input = input()
          continue
 
       if ov == DUMMY:
          ov = 2*math.log(math.log(n))
       for factor in factors(n, veb, ra, ov, pr):
-         print   factor
-      print
-      response = raw_input()
+         print(factor)
+      print()
+      user_input = input()
 
 def main():
    ra = veb = False
@@ -1468,8 +1464,8 @@ def main():
                veb = True
       else:
          if not valid_input(item):
-            print 'I am confused about the following: "%s". Here\'s the help page:' % item
-            print
+            print('I am confused about the following: "{0}". Here\'s the help page:'.format(item))
+            print()
             help()
 
    if len(sys.argv) > 1 and not is_switch(sys.argv[-1]):
