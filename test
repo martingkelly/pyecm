@@ -1,0 +1,21 @@
+#!/usr/bin/python3
+
+import os
+import sys
+
+if len(sys.argv) != 2:
+   print('Usage: ./test PYECM_PATH')
+   sys.exit(-1)
+parent_dir = os.path.realpath(os.path.join(sys.argv[1], os.pardir))
+sys.path.insert(0, parent_dir)
+
+from pyecm import *
+
+for n in range(1, 1001):
+	prod = 1
+	for factor in factors(n, False, False, 7.97308847044, 1.0):
+		prod *= factor
+	if prod != n:
+		print('Failed to factor %d.' % n, file=sys.stderr)
+		sys.exit(1)
+print('All tests passed.')
