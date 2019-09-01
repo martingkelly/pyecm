@@ -237,7 +237,7 @@ SMALL = 2.0**(-30)
 SMALLEST_COUNTEREXAMPLE_FASTPRIME = 2047
 T = (type(mpz(1)), type(1), type(1))
 DUMMY = 'dummy' # Dummy value throughout the program
-VERSION = '2.0.2 (Python 3)'
+VERSION = '2.0.3 (Python 3)'
 _12_LOG_2_OVER_49 = 12 * math.log(2) / 49
 RECORD = 1162795072109807846655696105569042240239
 
