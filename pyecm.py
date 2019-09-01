@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 
 '''
 You should install psyco and gmpy if you want maximal speed.
