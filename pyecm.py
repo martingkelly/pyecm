@@ -911,7 +911,7 @@ def mainloop(n, u, p1):
    small_jump = max(120, small_jump)
    big_jump = 1 + (int(sqrt((5 << w) // 21)) << 1)
    total_jump = small_jump * big_jump
-   big_multiple = max(total_jump << 1, ((int(next_prime(prime)) - (total_jump >> 1)) / total_jump) * total_jump)
+   big_multiple = max(total_jump << 1, ((int(next_prime(prime)) - (total_jump >> 1)) // total_jump) * total_jump)
    big_jump_2 = big_jump >> 1
    small_jump_2 = small_jump >> 1
    product = ONE
