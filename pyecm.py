@@ -1267,7 +1267,7 @@ Notes:
 
    while not n & 1:
       n >>= 1
-      yield 2
+      yield mpz(2)
 
    n = mpz(n)
    k = inv_const(n)
