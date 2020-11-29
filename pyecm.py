@@ -1258,6 +1258,9 @@ Notes:
    if type(n) not in T:
       raise ValueError('Number given must be integer or long.')
 
+   if n == 0:
+      raise ValueError('Number given must be greater than 0.')
+
    if not 0 < pr <= 1:
       yield 'Error: pr must be between 0 and 1'
       return
