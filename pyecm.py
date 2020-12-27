@@ -1120,8 +1120,8 @@ def get_points(p1, n):
         u, v, i = p1[j]
         inv = invs[j]
 
-        a = (((((((v - u) ** 3 % n) * v) % n) * (
-                u + u + u + v)) % n) * inv - 2) % n  # <-- This line is a thing of beauty
+        a = (((((((v - u) ** 3 % n) * v) % n) * (u + u + u + v)) % n) * inv - 2) % n
+        # Above line is a thing of beauty
         x_0 = (((((u * i) % n) * inv) % n) ** 3) % n  # And this one gets second place
         b = ((((x_0 + a) * x_0 + 1) % n) * x_0) % n
         x_0 = (b * x_0) % n
