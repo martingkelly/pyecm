@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 '''
-You should install psyco and gmpy if you want maximal speed.
+You should install gmpy2 if you want maximal speed.
 
 Filename: pyecm
 Authors: Eric Larson <elarson3@uoregon.edu>, Martin Kelly <martin@martingkelly.com>, Matt Ford <zeotherm@gmail.com>
@@ -18,29 +18,20 @@ import math
 import sys
 import random
 
-try:
-   import psyco
-   psyco.full()
-   PSYCO_EXISTS = True
-except ImportError:
-   PSYCO_EXISTS = False
-
+INV_C = 1.4
 try: # Try to use gmpy
    from gmpy2 import isqrt as sqrt
    from gmpy2 import iroot as root
    from gmpy2 import gcd, invert, mpz, next_prime
    import gmpy2
-   GMPY_EXISTS = True
 except ImportError:
    try:
       from gmpy import gcd, invert, mpz, next_prime, sqrt, root
-      GMPY_EXISTS = True
    except ImportError:
-      GMPY_EXISTS = False
+      INV_C = 13.0
 
-if not GMPY_EXISTS:
+if INV_C == 13.0:
    PRIMES = (5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 167)
-   GMPY_EXISTS = False
 
    def gcd(a, b):
       '''Computes the Greatest Common Divisor of a and b using the standard quadratic time improvement to the Euclidean Algorithm.
@@ -215,13 +206,6 @@ Returns a tuple. The first item is the floor of the kth root of n. The second is
       return root(n, 2)[0]
 
 # We're done importing. Now for some constants.
-if GMPY_EXISTS:
-   INV_C = 1.4
-else:
-   if PSYCO_EXISTS:
-      INV_C = 7.3
-   else:
-      INV_C = 13.0
 LOG_2 = math.log(2)
 LOG_4 = math.log(4)
 LOG_3_MINUS_LOG_LOG_2 = math.log(3) - math.log(LOG_2)
